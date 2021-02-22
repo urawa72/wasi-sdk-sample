@@ -16,7 +16,7 @@ download_wasmtime:
 
 build:
 	@mkdir -p build
-	$(CC) src/main.cpp -o $(WASM_NAME)
+	$(CC) --target=wasm32-wasi -Wl,--no-entry src/main.cpp -o $(WASM_NAME)
 
 test:
 	@$(WASMTIME_PATH)/wasmtime $(WASM_NAME)

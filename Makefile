@@ -1,8 +1,7 @@
 WASI_SDK_PATH = $(abspath $(PWD)/wasi-sdk)
 WASMTIME_PATH = $(abspath $(PWD)/wasmtime)
-WASM_NAME = build/sample.wasm
 SYS_ROOT = $(WASI_SDK_PATH)/share/wasi-sysroot
-CC = $(WASI_SDK_PATH)/bin/clang++ --sysroot=$(SYS_ROOT)
+CXX = $(WASI_SDK_PATH)/bin/clang++
 
 download_wasi_sdk:
 	wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-12/wasi-sdk-12.0-macos.tar.gz -O wasi-sdk.tar.gz
@@ -14,14 +13,21 @@ download_wasmtime:
 	mkdir -p wasmtime && tar xvf wasmtime.tar.gz -C wasmtime --strip-components 1
 	rm -rf wasmtime.tar.gz
 
-build:
+build_wasi:
 	@mkdir -p build
-	$(CC) --target=wasm32-wasi -Wl,--no-entry src/main.cpp -o $(WASM_NAME)
+	$(CXX) --sysroot=$(SYS_ROOT) --target=wasm32-wasi -Wl,--no-entry src/main.cpp -o build/sample.wasm
 
 test:
-	@$(WASMTIME_PATH)/wasmtime $(WASM_NAME)
+	@$(WASMTIME_PATH)/wasmtime build/sample.wasm
+
+build_wasm:
+	@mkdir -p build
+	$(CXX) --target=wasm32 -nostdlib -Wl,--export-all -Wl,--no-entry src/calc/calc.cpp -o build/calc.wasm
+
+server:
+	python -m http.server
 
 clean:
 	rm -rf build/
 
-.PHONY: download_wasi_sdk download_wasmtime build test clean
+.PHONY: download_wasi_sdk download_wasmtime build_wasm build_wasi test server clean

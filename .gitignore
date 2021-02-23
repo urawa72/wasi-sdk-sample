@@ -1,3 +1,5 @@
 build
 wasi-sdk
 wasmtime
+compile_flags.txt
+*.wasm

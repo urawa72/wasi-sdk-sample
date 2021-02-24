@@ -1,3 +1,5 @@
+#include <cmath>
+
 extern "C" double calc(double a) {
-    return a * 10000000;
+    return std::round(a * 10000000);
 }
